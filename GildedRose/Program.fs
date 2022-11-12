@@ -23,11 +23,8 @@ module Item =
             item
             
     let ReduceExpiredItemQuality item =
-        if item.SellIn < 0 then
-                if item.Quality > 0 then
-                    { item with Quality   = (item.Quality  - 1) }
-                else
-                    item
+        if item.SellIn < 0 && item.Quality > 0 then
+            { item with Quality   = (item.Quality  - 1) }
         else
             item
         
