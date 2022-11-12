@@ -100,7 +100,7 @@ type GildedRose(items:IList<BetterItems>) =
                 | AppreciatingItem (i) -> AppreciatingItem (Item.UpdateAppreciatingItem i)
                 | LegendaryItem (i) -> LegendaryItem (Item.UpdateItem i)
                 | ScalpableItem (i) -> ScalpableItem (Item.UpdateItem i)
-                | ConjuredItem (i) -> ConjuredItem (Item.UpdateItem i)
+                | ConjuredItem (i) -> ConjuredItem (Item.UpdateConjuredItem i)
         ()
     
 
