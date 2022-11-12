@@ -12,15 +12,27 @@ type BetterItems =
     | ConjuredItem of Item
 
 module Item =
-    let UpdateNormalItem oldItem =
-            let mutable item = oldItem
-            if item.Quality > 0 then
-                item <- { item with Quality = (item.Quality - 1) }                 
-            item <- { item with SellIn  = (item.SellIn - 1) } 
-            if item.SellIn < 0 then
-                if item.Quality > 0 then
-                    item <- { item with Quality   = (item.Quality  - 1) } 
+    
+    let AgeItem item =
+        { item with SellIn  = (item.SellIn - 1) }
+    
+    let ReduceQuality item =
+        if item.Quality > 0 then
+            { item with Quality = (item.Quality - 1) }
+        else
             item
+            
+    let ReduceExpiredItemQuality item =
+        if item.SellIn < 0 then
+                if item.Quality > 0 then
+                    { item with Quality   = (item.Quality  - 1) }
+                else
+                    item
+        else
+            item
+        
+    let UpdateNormalItem oldItem =
+        oldItem |> AgeItem |> ReduceQuality |> ReduceExpiredItemQuality
 
     let UpdateItem item1 =
             let mutable item = item1
