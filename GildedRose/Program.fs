@@ -16,21 +16,48 @@ module Item =
     let AgeItem item =
         { item with SellIn  = (item.SellIn - 1) }
     
-    let ReduceQuality item =
+    let ReduceQuality amount item =
         if item.Quality > 0 then
-            { item with Quality = (item.Quality - 1) }
+            { item with Quality = (item.Quality - amount) }
         else
             item
             
-    let ReduceExpiredItemQuality item =
+    let ReduceExpiredItemQuality amount item =
         if item.SellIn < 0 && item.Quality > 0 then
-            { item with Quality   = (item.Quality  - 1) }
+            { item with Quality   = (item.Quality  - amount) }
         else
             item
+
+    let ReduceNormalQuality = ReduceQuality 1
+    let ReduceExpiredNormalItemQuality = ReduceExpiredItemQuality 1
+    
+    let ReduceConjuredQuality = ReduceQuality 2 
+    let ReduceExpiredConjuredItemQuality = ReduceExpiredItemQuality 2
+
+    let IncreaseAppreciatingItemQuality item =
+            if item.Quality < 50 then
+                { item with Quality = (item.Quality + 1) } 
+            else
+                item
+    
+    let IncreaseExpiredAppreciatingItemQuality item =
+            if item.SellIn < 0 then
+                if item.Quality < 50 then
+                    { item with Quality   = (item.Quality + 1) }
+                else
+                    item
+            else
+                item
         
     let UpdateNormalItem oldItem =
-        oldItem |> AgeItem |> ReduceQuality |> ReduceExpiredItemQuality
+        oldItem |> AgeItem |> ReduceNormalQuality |> ReduceExpiredNormalItemQuality 
 
+    let UpdateConjuredItem oldItem =
+        oldItem |> AgeItem |> ReduceConjuredQuality |> ReduceExpiredConjuredItemQuality 
+
+    let UpdateAppreciatingItem item =
+            item |> AgeItem |> IncreaseAppreciatingItemQuality |> IncreaseExpiredAppreciatingItemQuality 
+  
     let UpdateItem item1 =
             let mutable item = item1
             if item.Name <> "Aged Brie" && item.Name <> "Backstage passes to a TAFKAL80ETC concert" then
@@ -70,7 +97,7 @@ type GildedRose(items:IList<BetterItems>) =
             Items.[i] <-
                 match Items[i] with
                 | NormalItem (i) -> NormalItem (Item.UpdateNormalItem i)
-                | AppreciatingItem (i) -> AppreciatingItem (Item.UpdateItem i)
+                | AppreciatingItem (i) -> AppreciatingItem (Item.UpdateAppreciatingItem i)
                 | LegendaryItem (i) -> LegendaryItem (Item.UpdateItem i)
                 | ScalpableItem (i) -> ScalpableItem (Item.UpdateItem i)
                 | ConjuredItem (i) -> ConjuredItem (Item.UpdateItem i)
