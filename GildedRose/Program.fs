@@ -89,50 +89,46 @@ module Item =
                         item <- { item with Quality   = (item.Quality + 1) }
             item
   
-type GildedRose(items:IList<BetterItems>) =
-    let Items = items
+type GildedRose(items : IList<Item>) =
+    let mutable Items = Seq.toList items
 
     member this.UpdateQuality() =
-        for i = 0 to Items.Count - 1 do
-            Items.[i] <-
-                match Items[i] with
-                | NormalItem (i) -> NormalItem (Item.UpdateNormalItem i)
-                | AppreciatingItem (i) -> AppreciatingItem (Item.UpdateAppreciatingItem i)
-                | LegendaryItem (i) -> LegendaryItem (Item.UpdateItem i)
-                | ScalpableItem (i) -> ScalpableItem (Item.UpdateItem i)
-                | ConjuredItem (i) -> ConjuredItem (Item.UpdateConjuredItem i)
+        
+        let updateItem item =
+            match item with
+                | i when i.Name = "Aged Brie" -> Item.UpdateAppreciatingItem i
+                | i when i.Name = "Sulfuras, Hand of Ragnaros" ->  Item.UpdateItem i
+                | i when i.Name = "Backstage passes to a TAFKAL80ETC concert" ->  Item.UpdateItem i
+                | i when i.Name = "Conjured Mana Cake" -> Item.UpdateConjuredItem i
+                | i -> Item.UpdateNormalItem i
+       
+        Items <- List.map updateItem Items
         ()
     
-
-
+    member this.PrintMe() =
+        List.iter (fun item -> printfn "%s, %d, %d" item.Name item.SellIn item.Quality) Items
+        
+    
 module Program =
     [<EntryPoint>]
     let main argv =
         printfn "OMGHAI!"
-        let Items = new List<BetterItems>()
-        Items.Add(NormalItem {Name = "+5 Dexterity Vest"; SellIn = 10; Quality = 20})
-        Items.Add(AppreciatingItem {Name = "Aged Brie"; SellIn = 2; Quality = 0})
-        Items.Add(NormalItem {Name = "Elixir of the Mongoose"; SellIn = 5; Quality = 7})
-        Items.Add(LegendaryItem {Name = "Sulfuras, Hand of Ragnaros"; SellIn = 0; Quality = 80})
-        Items.Add(LegendaryItem {Name = "Sulfuras, Hand of Ragnaros"; SellIn = -1; Quality = 80})
-        Items.Add(ScalpableItem {Name = "Backstage passes to a TAFKAL80ETC concert"; SellIn = 15; Quality = 20})
-        Items.Add(ScalpableItem {Name = "Backstage passes to a TAFKAL80ETC concert"; SellIn = 10; Quality = 49})
-        Items.Add(ScalpableItem {Name = "Backstage passes to a TAFKAL80ETC concert"; SellIn = 5; Quality = 49})
-        Items.Add(ConjuredItem {Name = "Conjured Mana Cake"; SellIn = 3; Quality = 6})
+        let Items = new List<Item>()
+        Items.Add({Name = "+5 Dexterity Vest"; SellIn = 10; Quality = 20})
+        Items.Add({Name = "Aged Brie"; SellIn = 2; Quality = 0})
+        Items.Add({Name = "Elixir of the Mongoose"; SellIn = 5; Quality = 7})
+        Items.Add({Name = "Sulfuras, Hand of Ragnaros"; SellIn = 0; Quality = 80})
+        Items.Add({Name = "Sulfuras, Hand of Ragnaros"; SellIn = -1; Quality = 80})
+        Items.Add({Name = "Backstage passes to a TAFKAL80ETC concert"; SellIn = 15; Quality = 20})
+        Items.Add({Name = "Backstage passes to a TAFKAL80ETC concert"; SellIn = 10; Quality = 49})
+        Items.Add({Name = "Backstage passes to a TAFKAL80ETC concert"; SellIn = 5; Quality = 49})
+        Items.Add({Name = "Conjured Mana Cake"; SellIn = 3; Quality = 6})
 
         let app = new GildedRose(Items)
         for i = 0 to 30 do
             printfn "-------- day %d --------" i
             printfn "name, sellIn, quality"
-            for j = 0 to Items.Count - 1 do
-                 let item =
-                     match Items[j] with
-                        | NormalItem (i) -> i
-                        | AppreciatingItem (i) -> i
-                        | LegendaryItem (i) -> i
-                        | ScalpableItem (i) -> i
-                        | ConjuredItem (i) -> i
-                 printfn "%s, %d, %d" item.Name item.SellIn item.Quality
+            app.PrintMe()
             printfn ""
             app.UpdateQuality()
         0 
