@@ -11,21 +11,39 @@ type BetterItems =
     | ScalpableItem of Item
     | ConjuredItem of Item
 
-type GildedRose(items:IList<BetterItems>) =
-    let Items = items
+module Item =
+    let UpdateNormalItem item1 =
+            let mutable item = item1
+            if item.Name <> "Aged Brie" && item.Name <> "Backstage passes to a TAFKAL80ETC concert" then
+                if item.Quality > 0 then
+                    if item.Name <> "Sulfuras, Hand of Ragnaros" then
+                        item <- { item with Quality = (item.Quality - 1) } 
+            else
+               if item.Quality < 50 then
+                    item <- { item with Quality = (item.Quality + 1) } 
+                    if item.Name = "Backstage passes to a TAFKAL80ETC concert" then
+                        if item.SellIn < 11 then
+                            if item.Quality < 50 then
+                                item <- { item with Quality = (item.Quality + 1) } 
+                        if item.SellIn < 6 then
+                            if item.Quality < 50 then
+                                item <- { item with Quality = (item.Quality + 1) } 
+            if item.Name <> "Sulfuras, Hand of Ragnaros" then                 
+                item <- { item with SellIn  = (item.SellIn - 1) } 
+            if item.SellIn < 0 then
+                if item.Name <> "Aged Brie" then
+                    if item.Name <> "Backstage passes to a TAFKAL80ETC concert" then
+                        if item.Quality > 0 then
+                            if item.Name <> "Sulfuras, Hand of Ragnaros" then
+                                item <- { item with Quality   = (item.Quality  - 1) } 
+                    else
+                        item <- { item with Quality   = (item.Quality  - item.Quality) } 
+                else
+                    if item.Quality < 50 then
+                        item <- { item with Quality   = (item.Quality + 1) }
+            item
 
-    member this.UpdateQuality() =
-        for i = 0 to Items.Count - 1 do
-            Items.[i] <-
-                match Items[i] with
-                | NormalItem (i) -> NormalItem (this.UpdateItem i)
-                | AppreciatingItem (i) -> AppreciatingItem (this.UpdateItem i)
-                | LegendaryItem (i) -> LegendaryItem (this.UpdateItem i)
-                | ScalpableItem (i) -> ScalpableItem (this.UpdateItem i)
-                | ConjuredItem (i) -> ConjuredItem (this.UpdateItem i)
-        ()
-    
-    member this.UpdateItem(item1 : Item) =
+    let UpdateItem item1 =
             let mutable item = item1
             if item.Name <> "Aged Brie" && item.Name <> "Backstage passes to a TAFKAL80ETC concert" then
                 if item.Quality > 0 then
@@ -56,6 +74,20 @@ type GildedRose(items:IList<BetterItems>) =
                         item <- { item with Quality   = (item.Quality + 1) }
             item
   
+type GildedRose(items:IList<BetterItems>) =
+    let Items = items
+
+    member this.UpdateQuality() =
+        for i = 0 to Items.Count - 1 do
+            Items.[i] <-
+                match Items[i] with
+                | NormalItem (i) -> NormalItem (Item.UpdateItem i)
+                | AppreciatingItem (i) -> AppreciatingItem (Item.UpdateItem i)
+                | LegendaryItem (i) -> LegendaryItem (Item.UpdateItem i)
+                | ScalpableItem (i) -> ScalpableItem (Item.UpdateItem i)
+                | ConjuredItem (i) -> ConjuredItem (Item.UpdateItem i)
+        ()
+    
 
 
 module Program =
